@@ -12,25 +12,25 @@ export interface UseBooksSyncProps {
 }
 
 export const useBooksSync = ({ onSyncStart, onSyncEnd }: UseBooksSyncProps) => {
-  const { user } = useAuth();
+  const { isLoggedIn } = useAuth();
   const { appService } = useEnv();
   const { library, setLibrary } = useLibraryStore();
   const { syncedBooks, syncBooks, lastSyncedAtBooks } = useSync();
   const syncBooksPullingRef = useRef(false);
 
   const pullLibrary = async () => {
-    if (!user) return;
+    if (!isLoggedIn) return;
     syncBooks([], 'pull');
   };
 
   const pushLibrary = async () => {
-    if (!user) return;
+    if (!isLoggedIn) return;
     const newBooks = getNewBooks();
     syncBooks(newBooks, 'push');
   };
 
   useEffect(() => {
-    if (!user) return;
+    if (!isLoggedIn) return;
     if (syncBooksPullingRef.current) return;
     syncBooksPullingRef.current = true;
 
@@ -42,7 +42,7 @@ export const useBooksSync = ({ onSyncStart, onSyncEnd }: UseBooksSyncProps) => {
   const syncTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const getNewBooks = () => {
-    if (!user) return [];
+    if (!isLoggedIn) return [];
     const newBooks = library.filter(
       (book) => lastSyncedAtBooks < book.updatedAt || lastSyncedAtBooks < (book.deletedAt ?? 0),
     );
@@ -50,7 +50,7 @@ export const useBooksSync = ({ onSyncStart, onSyncEnd }: UseBooksSyncProps) => {
   };
 
   useEffect(() => {
-    if (!user) return;
+    if (!isLoggedIn) return;
     const now = Date.now();
     const timeSinceLastSync = now - lastSyncTime.current;
     if (timeSinceLastSync > SYNC_BOOKS_INTERVAL_SEC * 1000) {

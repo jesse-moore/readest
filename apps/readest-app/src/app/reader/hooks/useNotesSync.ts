@@ -6,7 +6,7 @@ import { useBookDataStore } from '@/store/bookDataStore';
 import { SYNC_NOTES_INTERVAL_SEC } from '@/services/constants';
 
 export const useNotesSync = (bookKey: string) => {
-  const { user } = useAuth();
+  const { isLoggedIn } = useAuth();
   const { syncedNotes, syncNotes, lastSyncedAtNotes } = useSync(bookKey);
   const { getConfig, setConfig } = useBookDataStore();
 
@@ -17,7 +17,7 @@ export const useNotesSync = (bookKey: string) => {
   const syncTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const getNewNotes = () => {
-    if (!config?.location || !user) return [];
+    if (!config?.location || !isLoggedIn) return [];
     const bookNotes = config.booknotes ?? [];
     const newNotes = bookNotes.filter(
       (note) => lastSyncedAtNotes < note.updatedAt || lastSyncedAtNotes < (note.deletedAt ?? 0),
@@ -29,7 +29,7 @@ export const useNotesSync = (bookKey: string) => {
   };
 
   useEffect(() => {
-    if (!config?.location || !user) return;
+    if (!config?.location || !isLoggedIn) return;
     const now = Date.now();
     const timeSinceLastSync = now - lastSyncTime.current;
     if (timeSinceLastSync > SYNC_NOTES_INTERVAL_SEC * 1000) {

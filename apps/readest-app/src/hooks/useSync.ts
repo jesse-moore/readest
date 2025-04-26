@@ -125,11 +125,11 @@ export function useSync(bookKey?: string) {
     } catch (err: unknown) {
       console.error(err);
       if (err instanceof Error) {
-        if (err.message.includes('Not authenticated') && settings.keepLogin) {
-          settings.keepLogin = false;
-          setSettings(settings);
-          navigateToLogin(router);
-        }
+        // if (err.message.includes('Not authenticated') && settings.keepLogin) {
+        //   settings.keepLogin = false;
+        //   setSettings(settings);
+        //   navigateToLogin(router);
+        // }
         setSyncError(err.message || `Error pulling ${type}`);
       } else {
         setSyncError(`Error pulling ${type}`);

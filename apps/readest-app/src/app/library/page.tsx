@@ -55,7 +55,7 @@ const LibraryPageWithSearchParams = () => {
 const LibraryPageContent = ({ searchParams }: { searchParams: ReadonlyURLSearchParams | null }) => {
   const router = useRouter();
   const { envConfig, appService } = useEnv();
-  const { token, user } = useAuth();
+  const { isLoggedIn } = useAuth();
   const {
     library: libraryBooks,
     updateBook,
@@ -238,7 +238,7 @@ const LibraryPageContent = ({ searchParams }: { searchParams: ReadonlyURLSearchP
     const initLogin = async () => {
       const appService = await envConfig.getAppService();
       const settings = await appService.loadSettings();
-      if (token && user) {
+      if (isLoggedIn) {
         if (!settings.keepLogin) {
           settings.keepLogin = true;
           setSettings(settings);
@@ -317,7 +317,7 @@ const LibraryPageContent = ({ searchParams }: { searchParams: ReadonlyURLSearchP
       try {
         const book = await appService?.importBook(file, libraryBooks);
         setLibrary(libraryBooks);
-        if (user && book && !book.uploadedAt && settings.autoUpload) {
+        if (isLoggedIn && book && !book.uploadedAt && settings.autoUpload) {
           console.log('Uploading book:', book.title);
           handleBookUpload(book);
         }

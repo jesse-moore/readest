@@ -17,7 +17,7 @@ export const useProgressSync = (bookKey: string) => {
   const { getView, getProgress } = useReaderStore();
   const { settings } = useSettingsStore();
   const { syncedConfigs, syncConfigs } = useSync(bookKey);
-  const { user } = useAuth();
+  const { isLoggedIn } = useAuth();
   const view = getView(bookKey);
   const config = getConfig(bookKey);
   const progress = getProgress(bookKey);
@@ -26,7 +26,7 @@ export const useProgressSync = (bookKey: string) => {
   const firstPulled = useRef(false);
 
   const pushConfig = (bookKey: string, config: BookConfig | null) => {
-    if (!config || !user) return;
+    if (!config || !isLoggedIn) return;
     const bookHash = bookKey.split('-')[0]!;
     const newConfig = { bookHash, ...config };
     const compressedConfig = JSON.parse(
@@ -36,7 +36,7 @@ export const useProgressSync = (bookKey: string) => {
     syncConfigs([compressedConfig], bookHash, 'push');
   };
   const pullConfig = (bookKey: string) => {
-    if (!user) return;
+    if (!isLoggedIn) return;
     const bookHash = bookKey.split('-')[0]!;
     syncConfigs([], bookHash, 'pull');
   };
@@ -79,7 +79,7 @@ export const useProgressSync = (bookKey: string) => {
   const lastProgressSyncTime = useRef<number>(0);
   const syncTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
-    if (!config?.location || !user) return;
+    if (!config?.location || !isLoggedIn) return;
 
     const now = Date.now();
     const timeSinceLastSync = now - lastProgressSyncTime.current;

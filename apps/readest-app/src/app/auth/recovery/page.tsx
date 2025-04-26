@@ -29,20 +29,20 @@ export default function ResetPasswordPage() {
     };
   };
 
-  useEffect(() => {
-    const { data: subscription } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session?.access_token && session.user && event === 'USER_UPDATED') {
-        login(session.access_token, session.user);
-        const redirectTo = new URLSearchParams(window.location.search).get('redirect');
-        router.push(redirectTo ?? '/library');
-      }
-    });
+  // useEffect(() => {
+  //   const { data: subscription } = supabase.auth.onAuthStateChange((event, session) => {
+  //     if (session?.access_token && session.user && event === 'USER_UPDATED') {
+  //       login(session.access_token, session.user);
+  //       const redirectTo = new URLSearchParams(window.location.search).get('redirect');
+  //       router.push(redirectTo ?? '/library');
+  //     }
+  //   });
 
-    return () => {
-      subscription?.subscription.unsubscribe();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router]);
+  //   return () => {
+  //     subscription?.subscription.unsubscribe();
+  //   };
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [router]);
 
   return (
     <div className='flex min-h-screen items-center justify-center'>

@@ -46,7 +46,7 @@ const DeepLPopup: React.FC<DeepLPopupProps> = ({
   popupHeight,
 }) => {
   const _ = useTranslation();
-  const { token } = useAuth();
+  const { isLoggedIn } = useAuth();
   const { settings, setSettings } = useSettingsStore();
   const [sourceLang, setSourceLang] = useState('AUTO');
   const [targetLang, setTargetLang] = useState(settings.globalReadSettings.translateTargetLang);
@@ -65,57 +65,57 @@ const DeepLPopup: React.FC<DeepLPopupProps> = ({
     setTargetLang(event.target.value);
   };
 
-  useEffect(() => {
-    const fetchTranslation = async () => {
-      setLoading(true);
-      setError(null);
-      setTranslation(null);
+  // useEffect(() => {
+  //   const fetchTranslation = async () => {
+  //     setLoading(true);
+  //     setError(null);
+  //     setTranslation(null);
 
-      try {
-        const response = await fetch(DEEPL_API_ENDPOINT, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token ?? ''}`,
-          },
-          body: JSON.stringify({
-            text: [text],
-            target_lang: targetLang.toUpperCase(),
-            source_lang: sourceLang === 'AUTO' ? undefined : sourceLang.toUpperCase(),
-          }),
-        });
+  //     try {
+  //       const response = await fetch(DEEPL_API_ENDPOINT, {
+  //         method: 'POST',
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //           Authorization: `Bearer ${token ?? ''}`,
+  //         },
+  //         body: JSON.stringify({
+  //           text: [text],
+  //           target_lang: targetLang.toUpperCase(),
+  //           source_lang: sourceLang === 'AUTO' ? undefined : sourceLang.toUpperCase(),
+  //         }),
+  //       });
 
-        if (!response.ok) {
-          throw new Error('Failed to fetch translation');
-        }
-        const data = await response.json();
-        const translatedText = data.translations[0]?.text;
-        const detectedSource = data.translations[0]?.detected_source_language;
+  //       if (!response.ok) {
+  //         throw new Error('Failed to fetch translation');
+  //       }
+  //       const data = await response.json();
+  //       const translatedText = data.translations[0]?.text;
+  //       const detectedSource = data.translations[0]?.detected_source_language;
 
-        if (!translatedText) {
-          throw new Error('No translation found');
-        }
+  //       if (!translatedText) {
+  //         throw new Error('No translation found');
+  //       }
 
-        if (sourceLang === 'AUTO' && detectedSource) {
-          setDetectedSourceLang(detectedSource);
-        }
+  //       if (sourceLang === 'AUTO' && detectedSource) {
+  //         setDetectedSourceLang(detectedSource);
+  //       }
 
-        setTranslation(translatedText);
-      } catch (err) {
-        console.error(err);
-        if (!token) {
-          setError(_('Unable to fetch the translation. Please log in first and try again.'));
-        } else {
-          setError(_('Unable to fetch the translation. Try again later.'));
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
+  //       setTranslation(translatedText);
+  //     } catch (err) {
+  //       console.error(err);
+  //       if (!token) {
+  //         setError(_('Unable to fetch the translation. Please log in first and try again.'));
+  //       } else {
+  //         setError(_('Unable to fetch the translation. Try again later.'));
+  //       }
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
 
-    fetchTranslation();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [text, token, sourceLang, targetLang]);
+  //   fetchTranslation();
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [text, token, sourceLang, targetLang]);
 
   return (
     <div>

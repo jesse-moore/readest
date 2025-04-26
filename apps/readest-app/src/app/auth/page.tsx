@@ -289,20 +289,20 @@ export default function AuthPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    const { data: subscription } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.access_token && session.user) {
-        login(session.access_token, session.user);
-        const redirectTo = new URLSearchParams(window.location.search).get('redirect');
-        router.push(redirectTo ?? '/library');
-      }
-    });
+  // useEffect(() => {
+  //   const { data: subscription } = supabase.auth.onAuthStateChange((_event, session) => {
+  //     if (session?.access_token && session.user) {
+  //       login(session.access_token, session.user);
+  //       const redirectTo = new URLSearchParams(window.location.search).get('redirect');
+  //       router.push(redirectTo ?? '/library');
+  //     }
+  //   });
 
-    return () => {
-      subscription?.subscription.unsubscribe();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router]);
+  //   return () => {
+  //     subscription?.subscription.unsubscribe();
+  //   };
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [router]);
 
   useEffect(() => {
     setIsMounted(true);

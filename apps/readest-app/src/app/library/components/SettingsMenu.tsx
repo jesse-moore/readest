@@ -1,23 +1,18 @@
-import React, { useEffect, useState } from 'react';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { PiUserCircle } from 'react-icons/pi';
-import { PiUserCircleCheck } from 'react-icons/pi';
+import React, { useState } from 'react';
 import { MdCheck } from 'react-icons/md';
+import { PiUserCircle } from 'react-icons/pi';
 
 import { setAboutDialogVisible } from '@/components/AboutWindow';
-import { isTauriAppPlatform, isWebAppPlatform } from '@/services/environment';
-import { DOWNLOAD_READEST_URL } from '@/services/constants';
+import MenuItem from '@/components/MenuItem';
 import { useAuth } from '@/context/AuthContext';
 import { useEnv } from '@/context/EnvContext';
-import { useSettingsStore } from '@/store/settingsStore';
 import { useTranslation } from '@/hooks/useTranslation';
-import { getStoragePlanData } from '@/utils/access';
-import { navigateToLogin, navigateToProfile } from '@/utils/nav';
+import { DOWNLOAD_READEST_URL } from '@/services/constants';
+import { isTauriAppPlatform, isWebAppPlatform } from '@/services/environment';
+import { useSettingsStore } from '@/store/settingsStore';
+import { navigateToLogin } from '@/utils/nav';
 import { tauriHandleSetAlwaysOnTop, tauriHandleToggleFullScreen } from '@/utils/window';
-import { QuotaType } from '@/types/user';
-import MenuItem from '@/components/MenuItem';
-import Quota from '@/components/Quota';
 
 interface SettingsMenuProps {
   setIsDropdownOpen?: (isOpen: boolean) => void;
@@ -27,9 +22,8 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({ setIsDropdownOpen }) => {
   const _ = useTranslation();
   const router = useRouter();
   const { envConfig, appService } = useEnv();
-  const { token, user } = useAuth();
+  const { isLoggedIn } = useAuth();
   const { settings, setSettings, saveSettings } = useSettingsStore();
-  const [quotas, setQuotas] = React.useState<QuotaType[]>([]);
   const [isAutoUpload, setIsAutoUpload] = useState(settings.autoUpload);
   const [isAutoCheckUpdates, setIsAutoCheckUpdates] = useState(settings.autoCheckUpdates);
   const [isAlwaysOnTop, setIsAlwaysOnTop] = useState(settings.alwaysOnTop);
@@ -49,11 +43,6 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({ setIsDropdownOpen }) => {
 
   const handleUserLogin = () => {
     navigateToLogin(router);
-    setIsDropdownOpen?.(false);
-  };
-
-  const handleUserProfile = () => {
-    navigateToProfile(router);
     setIsDropdownOpen?.(false);
   };
 
@@ -82,7 +71,7 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({ setIsDropdownOpen }) => {
     saveSettings(envConfig, settings);
     setIsAutoUpload(settings.autoUpload);
 
-    if (settings.autoUpload && !user) {
+    if (settings.autoUpload && !isLoggedIn) {
       navigateToLogin(router);
     }
   };
@@ -108,62 +97,19 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({ setIsDropdownOpen }) => {
     setIsScreenWakeLock(settings.screenWakeLock);
   };
 
-  useEffect(() => {
-    if (!user || !token) return;
-    const storagPlan = getStoragePlanData(token);
-    const storageQuota: QuotaType = {
-      name: _('Storage'),
-      tooltip: _('{{percentage}}% of Cloud Storage Used.', {
-        percentage: Math.round((storagPlan.usage / storagPlan.quota) * 100),
-      }),
-      used: Math.round(storagPlan.usage / 1024 / 1024),
-      total: Math.round(storagPlan.quota / 1024 / 1024),
-      unit: 'MB',
-    };
-    setQuotas([storageQuota]);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token]);
-
   const isWebApp = isWebAppPlatform();
-  const avatarUrl = user?.user_metadata?.['picture'] || user?.user_metadata?.['avatar_url'];
-  const userFullName = user?.user_metadata?.['full_name'];
-  const userDisplayName = userFullName ? userFullName.split(' ')[0] : null;
 
   return (
     <div
       tabIndex={0}
       className='settings-menu dropdown-content no-triangle border-base-100 z-20 mt-2 shadow-2xl'
     >
-      {user ? (
-        <MenuItem
-          label={
-            userDisplayName
-              ? _('Logged in as {{userDisplayName}}', { userDisplayName })
-              : _('Logged in')
-          }
-          labelClass='!max-w-40'
-          Icon={
-            avatarUrl ? (
-              <Image
-                src={avatarUrl}
-                alt={_('User avatar')}
-                className='h-5 w-5 rounded-full'
-                referrerPolicy='no-referrer'
-                width={20}
-                height={20}
-              />
-            ) : (
-              PiUserCircleCheck
-            )
-          }
-        >
-          <ul>
-            <Quota quotas={quotas} className='h-10 pl-3 pr-2' />
-            <MenuItem label={_('Account')} noIcon onClick={handleUserProfile} />
-          </ul>
-        </MenuItem>
+      {isTauriAppPlatform() && isLoggedIn ? (
+        <MenuItem label={_('Sign Out')} Icon={PiUserCircle} onClick={() => {}}></MenuItem>
       ) : (
-        <MenuItem label={_('Sign In')} Icon={PiUserCircle} onClick={handleUserLogin}></MenuItem>
+        isTauriAppPlatform() && (
+          <MenuItem label={_('Sign In')} Icon={PiUserCircle} onClick={handleUserLogin}></MenuItem>
+        )
       )}
       <MenuItem
         label={_('Auto Upload Books to Cloud')}
